@@ -698,75 +698,89 @@
             document.getElementById('totalTTC').textContent = totalTTC.toFixed(2) + ' €';
         }
 
-        // Génération PDF
+        // Génération PDF - Version simplifiée et robuste
         function generatePDF() {
-            // Vérification de la disponibilité de jsPDF
-            if (typeof window.jspdf === 'undefined') {
+            console.log('generatePDF appelée');
+            
+            // Vérification de jsPDF
+            if (!window.jspdf) {
+                console.error('jsPDF non disponible');
                 alert('Erreur: Bibliothèque PDF non chargée. Veuillez rafraîchir la page.');
                 return;
             }
             
             try {
+                console.log('Création du PDF...');
                 const { jsPDF } = window.jspdf;
-            const doc = new jsPDF();
+                const doc = new jsPDF();
 
-            // Informations client
-            const clientName = document.getElementById('clientName').value;
-            const clientAddress = document.getElementById('clientAddress').value;
-            const clientPhone = document.getElementById('clientPhone').value;
-            const clientEmail = document.getElementById('clientEmail').value;
+                // Informations client
+                const clientName = document.getElementById('clientName').value || 'Client non spécifié';
+                const clientAddress = document.getElementById('clientAddress').value || '';
+                const clientPhone = document.getElementById('clientPhone').value || '';
+                const clientEmail = document.getElementById('clientEmail').value || '';
 
-            // En-tête
-            doc.setFontSize(20);
-            doc.text('DEVIS', 105, 30, { align: 'center' });
-            
-            // Watermark avec nom du client authentifié
-            doc.setFontSize(8);
-            doc.setTextColor(200, 200, 200);
-            doc.text(`Généré pour: ${userSession.clientName}`, 10, 290);
-            doc.setTextColor(0, 0, 0); // Reset couleur
-            
-            doc.setFontSize(12);
-            doc.text('DevisBoostAI', 20, 50);
-            doc.text('Date: ' + new Date().toLocaleDateString('fr-FR'), 20, 60);
-            doc.text('Devis N°: ' + Date.now(), 20, 70);
+                // En-tête
+                doc.setFontSize(20);
+                doc.text('DEVIS', 105, 30, { align: 'center' });
+                
+                // Watermark
+                doc.setFontSize(8);
+                doc.setTextColor(200, 200, 200);
+                const sessionData = JSON.parse(localStorage.getItem('devisboostai_session') || '{}');
+                doc.text(`Généré pour: ${sessionData.clientName || 'Utilisateur'}`, 10, 290);
+                doc.setTextColor(0, 0, 0);
+                
+                doc.setFontSize(12);
+                doc.text('DevisBoostAI', 20, 50);
+                doc.text('Date: ' + new Date().toLocaleDateString('fr-FR'), 20, 60);
+                doc.text('Devis N°: ' + Date.now(), 20, 70);
 
-            // Client
-            doc.text('CLIENT:', 20, 90);
-            doc.text(clientName, 20, 100);
-            if (clientAddress) doc.text(clientAddress, 20, 110);
-            if (clientPhone) doc.text('Tél: ' + clientPhone, 20, 120);
-            if (clientEmail) doc.text('Email: ' + clientEmail, 20, 130);
+                // Client
+                doc.text('CLIENT:', 20, 90);
+                doc.text(clientName, 20, 100);
+                if (clientAddress) doc.text(clientAddress, 20, 110);
+                if (clientPhone) doc.text('Tél: ' + clientPhone, 20, 120);
+                if (clientEmail) doc.text('Email: ' + clientEmail, 20, 130);
 
-            // Tableau des éléments
-            let yPosition = 150;
-            doc.text('DÉTAIL DES TRAVAUX:', 20, yPosition);
-            yPosition += 15;
+                // Détail des travaux
+                let yPosition = 150;
+                doc.text('DÉTAIL DES TRAVAUX:', 20, yPosition);
+                yPosition += 15;
 
-            quoteItems.forEach(item => {
-                doc.text(`${item.description} - Qté: ${item.quantity} - Prix: ${item.unitPrice}€ - Total: ${item.total.toFixed(2)}€`, 20, yPosition);
+                // Récupération des éléments du tableau
+                const rows = document.querySelectorAll('#quoteItemsTable tbody tr');
+                let subtotal = 0;
+                
+                rows.forEach(row => {
+                    const description = row.cells[0].querySelector('input').value;
+                    const quantity = parseFloat(row.cells[1].querySelector('input').value) || 0;
+                    const unitPrice = parseFloat(row.cells[2].querySelector('input').value) || 0;
+                    const total = quantity * unitPrice;
+                    subtotal += total;
+                    
+                    doc.text(`${description} - Qté: ${quantity} - Prix: ${unitPrice}€ - Total: ${total.toFixed(2)}€`, 20, yPosition);
+                    yPosition += 10;
+                });
+
+                // Totaux
                 yPosition += 10;
-            });
+                const tva = subtotal * 0.20;
+                const totalTTC = subtotal + tva;
 
-            // Totaux
-            yPosition += 10;
-            const subtotal = quoteItems.reduce((sum, item) => sum + item.total, 0);
-            const tva = subtotal * 0.20;
-            const totalTTC = subtotal + tva;
+                doc.text(`Sous-total HT: ${subtotal.toFixed(2)} €`, 20, yPosition);
+                doc.text(`TVA (20%): ${tva.toFixed(2)} €`, 20, yPosition + 10);
+                doc.setFontSize(14);
+                doc.text(`TOTAL TTC: ${totalTTC.toFixed(2)} €`, 20, yPosition + 25);
 
-            doc.text(`Sous-total HT: ${subtotal.toFixed(2)} €`, 20, yPosition);
-            doc.text(`TVA (20%): ${tva.toFixed(2)} €`, 20, yPosition + 10);
-            doc.setFontSize(14);
-            doc.text(`TOTAL TTC: ${totalTTC.toFixed(2)} €`, 20, yPosition + 25);
-
-            // Sauvegarde
-            doc.save(`devis-${clientName.replace(/\s+/g, '-')}-${Date.now()}.pdf`);
-
-            // Sauvegarder dans localStorage
-            saveQuoteToStorage();
-            
-            alert('Devis généré avec succès !');
-            
+                // Téléchargement
+                const fileName = `devis-${clientName.replace(/\s+/g, '-')}-${Date.now()}.pdf`;
+                console.log('Sauvegarde du PDF:', fileName);
+                doc.save(fileName);
+                
+                alert('PDF généré avec succès !');
+                console.log('PDF généré avec succès');
+                
             } catch (error) {
                 console.error('Erreur génération PDF:', error);
                 alert('Erreur lors de la génération du PDF: ' + error.message);
