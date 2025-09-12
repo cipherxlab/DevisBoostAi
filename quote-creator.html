@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Créer un Devis - DevisBoostAI</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="ai-processor.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #f8fafc, #e2e8f0);
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .header {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            font-size: 24px;
+            font-weight: 800;
+            color: #2563eb;
+        }
+        
+        .progress-bar {
+            background: #e2e8f0;
+            height: 8px;
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 20px 0;
+        }
+        
+        .progress-fill {
+            background: #2563eb;
+            height: 100%;
+            transition: width 0.3s ease;
+        }
+        
+        .step-container {
+            background: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+        
+        .step-title {
+            font-size: 28px;
+            margin-bottom: 10px;
+            color: #374151;
+        }
+        
+        .step-subtitle {
+            color: #6b7280;
+            margin-bottom: 30px;
+            font-size: 16px;
+        }
+        
+        .form-group {
+            margin-bottom: 25px;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #374151;
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: #2563eb;
+        }
+        
+        .form-textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+        
+        .voice-input-container {
+            position: relative;
+            margin-bottom: 25px;
+        }
+        
+        .voice-button {
+            background: #ef4444;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 50px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 0 auto;
+        }
+        
+        .voice-button:hover {
+            background: #dc2626;
+            transform: scale(1.05);
+        }
+        
+        .voice-button.recording {
+            background: #22c55e;
+            animation: pulse 1.5s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+        
+        .voice-status {
+            text-align: center;
+            margin-top: 15px;
+            color: #6b7280;
+            font-style: italic;
+        }
+        
+        .btn {
+            background: #2563eb;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .btn:hover {
+            background: #1d4ed8;
+            transform: translateY(-2px);
+        }
+        
+        .btn-secondary {
+            background: #6b7280;
+        }
+        
+        .btn-secondary:hover {
+            background: #4b5563;
+        }
+        
+        .btn-success {
+            background: #22c55e;
+        }
+        
+        .btn-success:hover {
+            background: #16a34a;
+        }
+        
+        .btn-group {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 30px;
+        }
+        
+        .items-container {
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 25px;
+        }
+        
+        .item-row {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr auto;
+            gap: 15px;
+            align-items: center;
+            margin-bottom: 15px;
+            padding: 15px;
+            background: #f8fafc;
+            border-radius: 8px;
+        }
+        
+        .item-row:last-child {
+            margin-bottom: 0;
+        }
+        
+        .remove-item {
+            background: #ef4444;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        
+        .add-item {
+            background: #22c55e;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            margin-top: 15px;
+        }
+        
+        .total-section {
+            background: #f0fdf4;
+            border: 2px solid #22c55e;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 30px;
+        }
+        
+        .total-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+        
+        .total-final {
+            font-size: 24px;
+            font-weight: 800;
+            color: #22c55e;
+            border-top: 2px solid #22c55e;
+            padding-top: 15px;
+            margin-top: 15px;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .ai-processing {
+            background: #eff6ff;
+            border: 2px solid #2563eb;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            margin: 20px 0;
+        }
+        
+        .spinner {
+            border: 3px solid #e2e8f0;
+            border-top: 3px solid #2563eb;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        @media (max-width: 768px) {
+            .item-row {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+            
+            .btn-group {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="logo">DevisBoostAI</div>
+            <div>
+                <a href="index.html" class="btn btn-secondary">← Retour</a>
+            </div>
+        </div>
+
+        <!-- Progress Bar -->
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressFill" style="width: 20%;"></div>
+        </div>
+
+        <!-- Step 1: Client Information -->
+        <div class="step-container" id="step1">
+            <h2 class="step-title">📋 Informations Client</h2>
+            <p class="step-subtitle">Commençons par les informations de votre client</p>
+            
+            <div class="form-group">
+                <label class="form-label">Nom du client *</label>
+                <input type="text" class="form-input" id="clientName" placeholder="Ex: Dupont SARL" required>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Adresse</label>
+                <input type="text" class="form-input" id="clientAddress" placeholder="Ex: 123 Rue de la Paix, 75001 Paris">
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Téléphone</label>
+                <input type="tel" class="form-input" id="clientPhone" placeholder="Ex: 01 23 45 67 89">
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Email</label>
+                <input type="email" class="form-input" id="clientEmail" placeholder="Ex: contact@dupont.fr">
+            </div>
+            
+            <div class="btn-group">
+                <button class="btn" onclick="nextStep(2)">Suivant →</button>
+            </div>
+        </div>
+
+        <!-- Step 2: Voice Input -->
+        <div class="step-container hidden" id="step2">
+            <h2 class="step-title">🎤 Décrivez vos travaux</h2>
+            <p class="step-subtitle">Utilisez la dictée vocale ou saisissez manuellement</p>
+            
+            <div class="voice-input-container">
+                <button class="voice-button" id="voiceButton" onclick="toggleVoiceRecording()">
+                    <span id="voiceIcon">🎤</span>
+                    <span id="voiceText">Appuyer pour parler</span>
+                </button>
+                <div class="voice-status" id="voiceStatus">Cliquez sur le bouton et décrivez vos travaux</div>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Description des travaux</label>
+                <textarea class="form-input form-textarea" id="workDescription" 
+                    placeholder="Ex: Rénovation électrique complète d'un appartement de 80m². Installation de nouveaux tableaux électriques, remplacement de tous les câbles, pose de 15 prises, 8 interrupteurs, 6 points lumineux..."></textarea>
+            </div>
+            
+            <div class="btn-group">
+                <button class="btn btn-secondary" onclick="previousStep(1)">← Précédent</button>
+                <button class="btn" onclick="processWithAI()">Analyser avec l'IA →</button>
+            </div>
+        </div>
+
+        <!-- AI Processing -->
+        <div class="ai-processing hidden" id="aiProcessing">
+            <div class="spinner"></div>
+            <h3>🧠 L'IA analyse votre description...</h3>
+            <p>Extraction des matériaux, calcul des quantités et estimation des prix</p>
+        </div>
+
+        <!-- Step 3: Items and Pricing -->
+        <div class="step-container hidden" id="step3">
+            <h2 class="step-title">💰 Détail des travaux</h2>
+            <p class="step-subtitle">Vérifiez et ajustez les éléments détectés par l'IA</p>
+            
+            <div class="items-container">
+                <div class="item-row" style="background: #2563eb; color: white; font-weight: 600;">
+                    <div>Description</div>
+                    <div>Quantité</div>
+                    <div>Prix unitaire</div>
+                    <div>Total</div>
+                    <div>Action</div>
+                </div>
+                <div id="itemsList">
+                    <!-- Items will be populated by AI -->
+                </div>
+                <button class="add-item" onclick="addNewItem()">+ Ajouter un élément</button>
+            </div>
+            
+            <div class="total-section">
+                <div class="total-row">
+                    <span>Sous-total HT:</span>
+                    <span id="subtotal">0,00 €</span>
+                </div>
+                <div class="total-row">
+                    <span>TVA (20%):</span>
+                    <span id="tva">0,00 €</span>
+                </div>
+                <div class="total-row total-final">
+                    <span>Total TTC:</span>
+                    <span id="totalTTC">0,00 €</span>
+                </div>
+            </div>
+            
+            <div class="btn-group">
+                <button class="btn btn-secondary" onclick="previousStep(2)">← Précédent</button>
+                <button class="btn btn-success" onclick="generatePDF()">📄 Générer le PDF</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Variables globales
+        let currentStep = 1;
+        let isRecording = false;
+        let recognition = null;
+        let quoteItems = [];
+        let aiProcessor = null;
+
+        // Initialisation
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeSpeechRecognition();
+            aiProcessor = new AIProcessor();
+            console.log('🚀 DevisBoostAI avec IA initialisé');
+        });
+
+        // Navigation entre les étapes
+        function nextStep(step) {
+            document.getElementById(`step${currentStep}`).classList.add('hidden');
+            document.getElementById(`step${step}`).classList.remove('hidden');
+            currentStep = step;
+            updateProgress();
+        }
+
+        function previousStep(step) {
+            document.getElementById(`step${currentStep}`).classList.add('hidden');
+            document.getElementById(`step${step}`).classList.remove('hidden');
+            currentStep = step;
+            updateProgress();
+        }
+
+        function updateProgress() {
+            const progress = (currentStep / 3) * 100;
+            document.getElementById('progressFill').style.width = progress + '%';
+        }
+
+        // Reconnaissance vocale
+        function initializeSpeechRecognition() {
+            if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+                const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+                recognition = new SpeechRecognition();
+                recognition.continuous = true;
+                recognition.interimResults = true;
+                recognition.lang = 'fr-FR';
+
+                recognition.onstart = function() {
+                    document.getElementById('voiceStatus').textContent = '🎤 Écoute en cours... Parlez maintenant !';
+                };
+
+                recognition.onresult = function(event) {
+                    let finalTranscript = '';
+                    for (let i = event.resultIndex; i < event.results.length; i++) {
+                        if (event.results[i].isFinal) {
+                            finalTranscript += event.results[i][0].transcript;
+                        }
+                    }
+                    if (finalTranscript) {
+                        const currentText = document.getElementById('workDescription').value;
+                        document.getElementById('workDescription').value = currentText + ' ' + finalTranscript;
+                    }
+                };
+
+                recognition.onerror = function(event) {
+                    document.getElementById('voiceStatus').textContent = '❌ Erreur: ' + event.error;
+                };
+
+                recognition.onend = function() {
+                    isRecording = false;
+                    updateVoiceButton();
+                    document.getElementById('voiceStatus').textContent = 'Dictée terminée. Vous pouvez continuer à taper ou reparler.';
+                };
+            } else {
+                document.getElementById('voiceStatus').textContent = '❌ Reconnaissance vocale non supportée par ce navigateur';
+            }
+        }
+
+        function toggleVoiceRecording() {
+            if (!recognition) {
+                alert('Reconnaissance vocale non disponible');
+                return;
+            }
+
+            if (isRecording) {
+                recognition.stop();
+            } else {
+                recognition.start();
+                isRecording = true;
+                updateVoiceButton();
+            }
+        }
+
+        function updateVoiceButton() {
+            const button = document.getElementById('voiceButton');
+            const icon = document.getElementById('voiceIcon');
+            const text = document.getElementById('voiceText');
+
+            if (isRecording) {
+                button.classList.add('recording');
+                icon.textContent = '⏹️';
+                text.textContent = 'Arrêter l\'enregistrement';
+            } else {
+                button.classList.remove('recording');
+                icon.textContent = '🎤';
+                text.textContent = 'Appuyer pour parler';
+            }
+        }
+
+        // Traitement IA avec Hugging Face
+        async function processWithAI() {
+            const description = document.getElementById('workDescription').value;
+            if (!description.trim()) {
+                alert('Veuillez décrire les travaux avant de continuer');
+                return;
+            }
+
+            // Afficher le traitement IA
+            document.getElementById('step2').classList.add('hidden');
+            document.getElementById('aiProcessing').classList.remove('hidden');
+
+            try {
+                console.log('🧠 Analyse IA en cours...', description);
+                
+                // Utilisation de la vraie IA
+                const result = await aiProcessor.analyzeWorkDescription(description);
+                
+                if (result.success) {
+                    quoteItems = result.items;
+                    console.log('✅ Analyse IA réussie:', result);
+                    
+                    // Afficher les suggestions si disponibles
+                    if (result.suggestions && result.suggestions.length > 0) {
+                        showAISuggestions(result.suggestions);
+                    }
+                } else {
+                    console.error('❌ Erreur IA:', result.error);
+                    quoteItems = result.items; // Utiliser les éléments de secours
+                }
+                
+                // Masquer le traitement et afficher les résultats
+                setTimeout(() => {
+                    document.getElementById('aiProcessing').classList.add('hidden');
+                    displayItems();
+                    calculateTotals();
+                    nextStep(3);
+                }, 2000); // Délai pour montrer le traitement
+                
+            } catch (error) {
+                console.error('❌ Erreur critique IA:', error);
+                // Utiliser les éléments de secours
+                quoteItems = aiProcessor.getFallbackItems();
+                
+                setTimeout(() => {
+                    document.getElementById('aiProcessing').classList.add('hidden');
+                    displayItems();
+                    calculateTotals();
+                    nextStep(3);
+                }, 2000);
+            }
+        }
+
+        // Affichage des suggestions IA
+        function showAISuggestions(suggestions) {
+            const suggestionsHtml = suggestions.map(suggestion => 
+                `<div style="background: #eff6ff; padding: 10px; margin: 5px 0; border-radius: 6px; border-left: 3px solid #2563eb;">
+                    ${suggestion}
+                </div>`
+            ).join('');
+            
+            // Ajouter les suggestions à l'interface
+            const aiProcessing = document.getElementById('aiProcessing');
+            aiProcessing.innerHTML += `
+                <div style="margin-top: 20px;">
+                    <h4>💡 Suggestions de l'IA :</h4>
+                    ${suggestionsHtml}
+                </div>
+            `;
+        }
+
+        function displayItems() {
+            const itemsList = document.getElementById('itemsList');
+            itemsList.innerHTML = '';
+            
+            quoteItems.forEach((item, index) => {
+                const itemRow = document.createElement('div');
+                itemRow.className = 'item-row';
+                itemRow.innerHTML = `
+                    <input type="text" class="form-input" value="${item.description}" onchange="updateItem(${index}, 'description', this.value)">
+                    <input type="number" class="form-input" value="${item.quantity}" onchange="updateItem(${index}, 'quantity', this.value)">
+                    <input type="number" class="form-input" value="${item.unitPrice}" step="0.01" onchange="updateItem(${index}, 'unitPrice', this.value)">
+                    <span style="font-weight: 600;">${item.total.toFixed(2)} €</span>
+                    <button class="remove-item" onclick="removeItem(${index})">🗑️</button>
+                `;
+                itemsList.appendChild(itemRow);
+            });
+        }
+
+        function updateItem(index, field, value) {
+            quoteItems[index][field] = field === 'description' ? value : parseFloat(value) || 0;
+            quoteItems[index].total = quoteItems[index].quantity * quoteItems[index].unitPrice;
+            displayItems();
+            calculateTotals();
+        }
+
+        function removeItem(index) {
+            quoteItems.splice(index, 1);
+            displayItems();
+            calculateTotals();
+        }
+
+        function addNewItem() {
+            quoteItems.push({
+                description: 'Nouvel élément',
+                quantity: 1,
+                unitPrice: 0,
+                total: 0
+            });
+            displayItems();
+            calculateTotals();
+        }
+
+        function calculateTotals() {
+            const subtotal = quoteItems.reduce((sum, item) => sum + item.total, 0);
+            const tva = subtotal * 0.20;
+            const totalTTC = subtotal + tva;
+
+            document.getElementById('subtotal').textContent = subtotal.toFixed(2) + ' €';
+            document.getElementById('tva').textContent = tva.toFixed(2) + ' €';
+            document.getElementById('totalTTC').textContent = totalTTC.toFixed(2) + ' €';
+        }
+
+        // Génération PDF
+        function generatePDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+
+            // Informations client
+            const clientName = document.getElementById('clientName').value;
+            const clientAddress = document.getElementById('clientAddress').value;
+            const clientPhone = document.getElementById('clientPhone').value;
+            const clientEmail = document.getElementById('clientEmail').value;
+
+            // En-tête
+            doc.setFontSize(20);
+            doc.text('DEVIS', 105, 30, { align: 'center' });
+            
+            doc.setFontSize(12);
+            doc.text('DevisBoostAI', 20, 50);
+            doc.text('Date: ' + new Date().toLocaleDateString('fr-FR'), 20, 60);
+            doc.text('Devis N°: ' + Date.now(), 20, 70);
+
+            // Client
+            doc.text('CLIENT:', 20, 90);
+            doc.text(clientName, 20, 100);
+            if (clientAddress) doc.text(clientAddress, 20, 110);
+            if (clientPhone) doc.text('Tél: ' + clientPhone, 20, 120);
+            if (clientEmail) doc.text('Email: ' + clientEmail, 20, 130);
+
+            // Tableau des éléments
+            let yPosition = 150;
+            doc.text('DÉTAIL DES TRAVAUX:', 20, yPosition);
+            yPosition += 15;
+
+            quoteItems.forEach(item => {
+                doc.text(`${item.description} - Qté: ${item.quantity} - Prix: ${item.unitPrice}€ - Total: ${item.total.toFixed(2)}€`, 20, yPosition);
+                yPosition += 10;
+            });
+
+            // Totaux
+            yPosition += 10;
+            const subtotal = quoteItems.reduce((sum, item) => sum + item.total, 0);
+            const tva = subtotal * 0.20;
+            const totalTTC = subtotal + tva;
+
+            doc.text(`Sous-total HT: ${subtotal.toFixed(2)} €`, 20, yPosition);
+            doc.text(`TVA (20%): ${tva.toFixed(2)} €`, 20, yPosition + 10);
+            doc.setFontSize(14);
+            doc.text(`TOTAL TTC: ${totalTTC.toFixed(2)} €`, 20, yPosition + 25);
+
+            // Sauvegarde
+            doc.save(`devis-${clientName.replace(/\s+/g, '-')}-${Date.now()}.pdf`);
+
+            // Sauvegarder dans localStorage
+            saveQuoteToStorage();
+            
+            alert('Devis généré avec succès !');
+        }
+
+        function saveQuoteToStorage() {
+            const quote = {
+                id: Date.now(),
+                date: new Date().toISOString(),
+                client: {
+                    name: document.getElementById('clientName').value,
+                    address: document.getElementById('clientAddress').value,
+                    phone: document.getElementById('clientPhone').value,
+                    email: document.getElementById('clientEmail').value
+                },
+                items: quoteItems,
+                total: quoteItems.reduce((sum, item) => sum + item.total, 0) * 1.20
+            };
+
+            let quotes = JSON.parse(localStorage.getItem('devisboostai_quotes') || '[]');
+            quotes.push(quote);
+            localStorage.setItem('devisboostai_quotes', JSON.stringify(quotes));
+
+            // Mettre à jour le compteur utilisateur
+            let user = JSON.parse(localStorage.getItem('devisboostai_user'));
+            user.quotesCreated++;
+            localStorage.setItem('devisboostai_user', JSON.stringify(user));
+        }
+    </script>
+</body>
+</html>
+

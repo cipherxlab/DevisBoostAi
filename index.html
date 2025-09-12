@@ -677,11 +677,15 @@
 
     <script>
         function startPayment(plan) {
-            // Redirection vers Stripe Checkout selon le plan
+            // Redirection vers l'application
+            window.location.href = 'quote-creator.html';
+        }
+        
+        function selectPlan(plan) {
             if (plan === 'solo') {
-                window.location.href = 'https://buy.stripe.com/aFa6oA0cOclgdk22yX0ZW01'; // REMPLACER CE LIEN
-            } else if (plan === 'team') {
-                window.location.href = 'https://buy.stripe.com/dRmaEQ9Nodpk6VEflJ0ZW02'; // REMPLACER CE LIEN
+                window.location.href = 'quote-creator.html'; // Accès direct à l'application
+            } else {
+                window.location.href = 'quote-creator.html'; // Accès direct à l'application
             }
         }
         
