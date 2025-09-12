@@ -5,6 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Créer un Devis - DevisBoostAI</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script>
+        // Vérification du chargement de jsPDF
+        window.addEventListener('load', function() {
+            if (typeof window.jspdf === 'undefined') {
+                console.error('jsPDF non chargé, tentative de rechargement...');
+                const script = document.createElement('script');
+                script.src = 'https://unpkg.com/jspdf@latest/dist/jspdf.umd.min.js';
+                document.head.appendChild(script);
+            }
+        });
+    </script>
     <script src="ai-processor.js"></script>
     <style>
         * {
@@ -689,7 +700,14 @@
 
         // Génération PDF
         function generatePDF() {
-            const { jsPDF } = window.jspdf;
+            // Vérification de la disponibilité de jsPDF
+            if (typeof window.jspdf === 'undefined') {
+                alert('Erreur: Bibliothèque PDF non chargée. Veuillez rafraîchir la page.');
+                return;
+            }
+            
+            try {
+                const { jsPDF } = window.jspdf;
             const doc = new jsPDF();
 
             // Informations client
@@ -748,6 +766,11 @@
             saveQuoteToStorage();
             
             alert('Devis généré avec succès !');
+            
+            } catch (error) {
+                console.error('Erreur génération PDF:', error);
+                alert('Erreur lors de la génération du PDF: ' + error.message);
+            }
         }
 
         function saveQuoteToStorage() {
