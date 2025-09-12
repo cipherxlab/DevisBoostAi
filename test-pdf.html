@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test PDF</title>
+    <script src="https://unpkg.com/jspdf@latest/dist/jspdf.umd.min.js"></script>
+</head>
+<body>
+    <h1>Test PDF Generation</h1>
+    <button onclick="testPDF()">Générer PDF Test</button>
+    
+    <script>
+        function testPDF() {
+            try {
+                console.log('Test PDF démarré');
+                console.log('window.jspdf:', window.jspdf);
+                
+                if (!window.jspdf) {
+                    alert('jsPDF non disponible');
+                    return;
+                }
+                
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF();
+                
+                doc.text('Test PDF DevisBoostAI', 20, 20);
+                doc.text('Date: ' + new Date().toLocaleDateString(), 20, 30);
+                
+                doc.save('test-devis.pdf');
+                alert('PDF généré avec succès !');
+                
+            } catch (error) {
+                console.error('Erreur:', error);
+                alert('Erreur: ' + error.message);
+            }
+        }
+    </script>
+</body>
+</html>
+
