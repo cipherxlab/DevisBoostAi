@@ -677,16 +677,13 @@
 
     <script>
         function startPayment(plan) {
-            // Redirection vers l'application
-            window.location.href = 'quote-creator.html';
+            // Redirection vers la page de connexion
+            window.location.href = 'login.html';
         }
         
         function selectPlan(plan) {
-            if (plan === 'solo') {
-                window.location.href = 'quote-creator.html'; // Accès direct à l'application
-            } else {
-                window.location.href = 'quote-creator.html'; // Accès direct à l'application
-            }
+            // Redirection vers la page de connexion pour tous les plans
+            window.location.href = 'login.html';
         }
         
         function toggleFaq(element) {

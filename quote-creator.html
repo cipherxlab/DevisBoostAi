@@ -414,12 +414,41 @@
         </div>
     </div>
 
-    <script>
-        // Variables globales
+     <script>
+        // Vérification de l'authentification
+        function checkAuthentication() {
+            const session = localStorage.getItem('devisboostai_session');
+            if (!session) {
+                window.location.href = 'login.html';
+                return null;
+            }
+            
+            const sessionData = JSON.parse(session);
+            const loginTime = new Date(sessionData.loginTime);
+            const now = new Date();
+            const hoursSinceLogin = (now - loginTime) / (1000 * 60 * 60);
+            
+            // Session valide pendant 24h
+            if (hoursSinceLogin >= 24) {
+                localStorage.removeItem('devisboostai_session');
+                window.location.href = 'login.html';
+                return null;
+            }
+            
+            return sessionData;
+        }
+        
+        // Vérifier l'authentification au chargement
+        const userSession = checkAuthentication();
+        if (!userSession) {
+            // Redirection déjà effectuée, arrêter l'exécution
+            throw new Error('Non authentifié');
+        }
+
         let currentStep = 1;
+        let quoteItems = [];
         let isRecording = false;
         let recognition = null;
-        let quoteItems = [];
         let aiProcessor = null;
 
         // Initialisation
@@ -657,6 +686,12 @@
             // En-tête
             doc.setFontSize(20);
             doc.text('DEVIS', 105, 30, { align: 'center' });
+            
+            // Watermark avec nom du client authentifié
+            doc.setFontSize(8);
+            doc.setTextColor(200, 200, 200);
+            doc.text(`Généré pour: ${userSession.clientName}`, 10, 290);
+            doc.setTextColor(0, 0, 0); // Reset couleur
             
             doc.setFontSize(12);
             doc.text('DevisBoostAI', 20, 50);
