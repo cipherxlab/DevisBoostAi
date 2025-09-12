@@ -415,35 +415,50 @@
     </div>
 
      <script>
-        // Vérification de l'authentification
+        // Vérification de l'authentification RENFORCÉE
         function checkAuthentication() {
             const session = localStorage.getItem('devisboostai_session');
             if (!session) {
+                alert('Accès non autorisé. Redirection vers la page de connexion.');
                 window.location.href = 'login.html';
                 return null;
             }
             
-            const sessionData = JSON.parse(session);
-            const loginTime = new Date(sessionData.loginTime);
-            const now = new Date();
-            const hoursSinceLogin = (now - loginTime) / (1000 * 60 * 60);
-            
-            // Session valide pendant 24h
-            if (hoursSinceLogin >= 24) {
+            try {
+                const sessionData = JSON.parse(session);
+                const loginTime = new Date(sessionData.loginTime);
+                const now = new Date();
+                const hoursSinceLogin = (now - loginTime) / (1000 * 60 * 60);
+                
+                // Session valide pendant 24h
+                if (hoursSinceLogin >= 24) {
+                    localStorage.removeItem('devisboostai_session');
+                    alert('Session expirée. Veuillez vous reconnecter.');
+                    window.location.href = 'login.html';
+                    return null;
+                }
+                
+                return sessionData;
+            } catch (error) {
                 localStorage.removeItem('devisboostai_session');
+                alert('Session invalide. Redirection vers la page de connexion.');
                 window.location.href = 'login.html';
                 return null;
             }
-            
-            return sessionData;
         }
         
-        // Vérifier l'authentification au chargement
+        // Vérifier l'authentification IMMÉDIATEMENT
         const userSession = checkAuthentication();
         if (!userSession) {
-            // Redirection déjà effectuée, arrêter l'exécution
-            throw new Error('Non authentifié');
+            // Arrêter complètement l'exécution du script
+            document.body.innerHTML = '<div style="text-align:center;padding:50px;"><h2>Redirection en cours...</h2></div>';
+            throw new Error('Non authentifié - arrêt du script');
         }
+        
+        // Vérification continue toutes les 5 minutes
+        setInterval(function() {
+            checkAuthentication();
+        }, 5 * 60 * 1000);
 
         let currentStep = 1;
         let quoteItems = [];
