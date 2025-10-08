@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DevisBoostAI - Payez une fois, créez des devis à vie</title>
+    <meta name="description" content="Fini les abonnements coûteux. Un paiement unique pour créer des devis illimités avec l'IA. Accès à vie garanti.">
+    
+    <!-- Open Graph -->
+    <meta property="og:title" content="DevisBoostAI - Payez une fois, créez des devis à vie">
+    <meta property="og:description" content="Fini les abonnements coûteux. Un paiement unique pour créer des devis illimités avec l'IA.">
+    <meta property="og:type" content="website">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            color: #1a1a1a;
+            background: #ffffff;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        /* Bannière Promo */
+        .promo-banner {
+            background: linear-gradient(90deg, #2563eb, #1d4ed8);
+            color: white;
+            text-align: center;
+            padding: 12px 0;
+            font-weight: 600;
+            font-size: 14px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.9; }
+        }
+        
+        /* Header */
+        .header {
+            background: white;
+            padding: 20px 0;
+            border-bottom: 1px solid #e5e7eb;
+            position: sticky;
+            top: 46px;
+            z-index: 99;
+        }
+        
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            font-size: 24px;
+            font-weight: 800;
+            color: #1a1a1a;
+        }
+        
+        .nav {
+            display: flex;
+            gap: 30px;
+            align-items: center;
+        }
+        
+        .nav a {
+            text-decoration: none;
+            color: #6b7280;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+        
+        .nav a:hover {
+            color: #1a1a1a;
+        }
+        
+        /* Hero Section */
+        .hero {
+            padding: 80px 0;
+            text-align: center;
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+        }
+        
+        .hero h1 {
+            font-size: 56px;
+            font-weight: 900;
+            margin-bottom: 24px;
+            line-height: 1.1;
+            color: #1a1a1a;
+        }
+        
+        .hero .subtitle {
+            font-size: 24px;
+            color: #6b7280;
+            margin-bottom: 40px;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .hero .highlight {
+            background: linear-gradient(90deg, #2563eb, #1d4ed8);
+            color: white;
+            padding: 16px 32px;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 40px;
+            display: inline-block;
+        }
+        
+        /* Pricing Section */
+        .pricing {
+            padding: 80px 0;
+            background: white;
+        }
+        
+        .pricing-container {
+            max-width: 800px;
+            margin: 0 auto;
+            text-align: center;
+        }
+        
+        .pricing-cards {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            margin-top: 60px;
+        }
+        
+        .pricing-card {
+            background: white;
+            border: 2px solid #e5e7eb;
+            border-radius: 16px;
+            padding: 40px;
+            position: relative;
+            transition: all 0.3s;
+        }
+        
+        .pricing-card:hover {
+            border-color: #2563eb;
+            box-shadow: 0 20px 40px rgba(37, 99, 235, 0.1);
+        }
+        
+        .pricing-card.featured {
+            border-color: #2563eb;
+            box-shadow: 0 20px 40px rgba(37, 99, 235, 0.15);
+            transform: scale(1.05);
+        }
+        
+        .pricing-card.featured::before {
+            content: "⚡ -20% Offre limitée";
+            position: absolute;
+            top: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(90deg, #2563eb, #1d4ed8);
+            color: white;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        
+        .price {
+            font-size: 48px;
+            font-weight: 900;
+            color: #1a1a1a;
+            margin-bottom: 8px;
+        }
+        
+        .price-old {
+            font-size: 24px;
+            color: #9ca3af;
+            text-decoration: line-through;
+            margin-left: 12px;
+        }
+        
+        .price-subtitle {
+            color: #6b7280;
+            font-size: 18px;
+            margin-bottom: 32px;
+        }
+        
+        .features-list {
+            list-style: none;
+            text-align: left;
+            margin-bottom: 32px;
+        }
+        
+        .features-list li {
+            padding: 8px 0;
+            font-size: 16px;
+            color: #374151;
+            display: flex;
+            align-items: center;
+        }
+        
+        .features-list li::before {
+            content: "✓";
+            color: #2563eb;
+            font-weight: bold;
+            margin-right: 12px;
+            font-size: 18px;
+        }
+        
+        .cta-button {
+            background: linear-gradient(90deg, #2563eb, #1d4ed8);
+            color: white;
+            border: none;
+            padding: 16px 32px;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            width: 100%;
+        }
+        
+        .cta-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(37, 99, 235, 0.3);
+        }
+        
+        .guarantee {
+            margin-top: 16px;
+            font-size: 14px;
+            color: #6b7280;
+        }
+        
+        /* Features Section */
+        .features {
+            padding: 80px 0;
+            background: #f8fafc;
+        }
+        
+        .features h2 {
+            text-align: center;
+            font-size: 36px;
+            font-weight: 800;
+            margin-bottom: 60px;
+            color: #1a1a1a;
+        }
+        
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 40px;
+        }
+        
+        .feature-item {
+            background: white;
+            padding: 32px;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            text-align: center;
+        }
+        
+        .feature-icon {
+            font-size: 48px;
+            margin-bottom: 20px;
+        }
+        
+        .feature-item h3 {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 16px;
+            color: #1a1a1a;
+        }
+        
+        .feature-item p {
+            color: #6b7280;
+            line-height: 1.6;
+        }
+        
+        /* Social Proof */
+        .social-proof {
+            padding: 60px 0;
+            background: white;
+            text-align: center;
+        }
+        
+        .social-proof h3 {
+            font-size: 18px;
+            color: #6b7280;
+            margin-bottom: 32px;
+        }
+        
+        .logos {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 40px;
+            flex-wrap: wrap;
+        }
+        
+        .logo-item {
+            padding: 12px 24px;
+            background: #f8fafc;
+            border-radius: 8px;
+            font-weight: 600;
+            color: #6b7280;
+        }
+        
+        /* FAQ Section */
+        .faq {
+            padding: 80px 0;
+            background: #f8fafc;
+        }
+        
+        .faq h2 {
+            text-align: center;
+            font-size: 36px;
+            font-weight: 800;
+            margin-bottom: 60px;
+            color: #1a1a1a;
+        }
+        
+        .faq-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .faq-item {
+            background: white;
+            border-radius: 12px;
+            margin-bottom: 16px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+        
+        .faq-question {
+            padding: 24px;
+            font-weight: 600;
+            font-size: 18px;
+            cursor: pointer;
+            border: none;
+            background: none;
+            width: 100%;
+            text-align: left;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .faq-answer {
+            padding: 0 24px 24px;
+            color: #6b7280;
+            line-height: 1.6;
+            display: none;
+        }
+        
+        .faq-item.active .faq-answer {
+            display: block;
+        }
+        
+        /* Footer */
+        .footer {
+            background: #1a1a1a;
+            color: white;
+            padding: 40px 0;
+            text-align: center;
+        }
+        
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 36px;
+            }
+            
+            .hero .subtitle {
+                font-size: 18px;
+            }
+            
+            .pricing-cards {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            .pricing-card.featured {
+                transform: none;
+            }
+            
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .nav {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Bannière Promo -->
+    <div class="promo-banner">
+        ⚡ -20% SUR TOUS LES PLANS. Offre limitée ⚡
+    </div>
+
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">DevisBoostAI</div>
+                <nav class="nav">
+                    <a href="#fonctionnalites">Fonctionnalités</a>
+                    <a href="#tarifs">Tarifs</a>
+                    <a href="#faq">FAQ</a>
+                    <a href="mailto:contact@devisboostai.com">Contact</a>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <h1>
+                <span class="highlight">Fini</span> les devis de 3h qui vous volent du temps et des clients !
+            </h1>
+            <h2 style="font-size: 24px; margin-bottom: 20px; color: #374151;">
+                Créez des devis pro en ~10 minutes au lieu de 2-3h et amortissez votre achat dès vos premiers devis.
+                <br><small style="font-size: 16px; color: #6b7280;">*Temps moyen pour un devis standard (source : retours bêta).</small>
+            </h2>
+            
+            <div class="benefits-hero" style="margin: 40px 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px;">
+                <div class="benefit" style="display: flex; align-items: center; padding: 16px; background: #f8fafc; border-radius: 12px; border-left: 4px solid #2563eb;">
+                    <span style="color: #2563eb; font-size: 20px; margin-right: 12px;">✅</span>
+                    <div>
+                        <strong>Dictée vocale intelligente</strong><br>
+                        <small style="color: #6b7280;">Parlez, l'IA structure automatiquement</small>
+                    </div>
+                </div>
+                <div class="benefit" style="display: flex; align-items: center; padding: 16px; background: #f8fafc; border-radius: 12px; border-left: 4px solid #2563eb;">
+                    <span style="color: #2563eb; font-size: 20px; margin-right: 12px;">✅</span>
+                    <div>
+                        <strong>Reconnaissance photo</strong><br>
+                        <small style="color: #6b7280;">Calcule matériaux et quantités</small>
+                    </div>
+                </div>
+                <div class="benefit" style="display: flex; align-items: center; padding: 16px; background: #f8fafc; border-radius: 12px; border-left: 4px solid #2563eb;">
+                    <span style="color: #2563eb; font-size: 20px; margin-right: 12px;">✅</span>
+                    <div>
+                        <strong>Prix temps réel</strong><br>
+                        <small style="color: #6b7280;">15,000+ références à jour</small>
+                    </div>
+                </div>
+                <div class="benefit" style="display: flex; align-items: center; padding: 16px; background: #f8fafc; border-radius: 12px; border-left: 4px solid #2563eb;">
+                    <span style="color: #2563eb; font-size: 20px; margin-right: 12px;">✅</span>
+                    <div>
+                        <strong>Signature électronique</strong><br>
+                        <small style="color: #6b7280;">Contrats validés en un clic</small>
+                    </div>
+                </div>
+                <div class="benefit" style="display: flex; align-items: center; padding: 16px; background: #f8fafc; border-radius: 12px; border-left: 4px solid #2563eb;">
+                    <span style="color: #2563eb; font-size: 20px; margin-right: 12px;">✅</span>
+                    <div>
+                        <strong>Export facile</strong><br>
+                        <small style="color: #6b7280;">PDF, Excel, comptabilité</small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="cta-hero" style="text-align: center; margin: 40px 0;">
+                <a href="#tarifs" class="cta-button" style="display: inline-block; text-decoration: none; font-size: 20px; padding: 20px 40px; margin-bottom: 20px;">
+                    🚀 Démarrez maintenant et gagnez du temps<br>
+                    <span style="font-size: 16px; opacity: 0.9;">Profitez de -20% pendant le lancement</span>
+                </a>
+                <p class="trust-line" style="color: #6b7280; margin: 20px 0;">
+                    ✅ Rejoignez les artisans qui optimisent leurs devis • Noté 4.8/5 par nos utilisateurs
+                </p>
+            </div>
+
+            <div class="mini-testimonials" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin: 40px 0; padding: 30px; background: linear-gradient(135deg, #f8fafc, #e2e8f0); border-radius: 16px;">
+                <div style="text-align: center; padding: 20px;">
+                    <p style="font-style: italic; color: #374151; margin-bottom: 10px;">"Gain de 2h par devis !"</p>
+                    <small style="color: #6b7280;">– Marc, électricien, Lyon</small>
+                </div>
+                <div style="text-align: center; padding: 20px;">
+                    <p style="font-style: italic; color: #374151; margin-bottom: 10px;">"Mes clients signent plus vite."</p>
+                    <small style="color: #6b7280;">– Sophie, plombier, Marseille</small>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Pricing Section -->
+    <section class="pricing" id="tarifs">
+        <div class="container">
+            <div class="pricing-container">
+                <div class="pricing-cards">
+                    <div class="pricing-card featured">
+                        <h3>Artisan Solo</h3>
+                        <div class="price">79€ <span class="price-old">99€</span></div>
+                        <div class="price-subtitle">Parfait pour les artisans indépendants</div>
+                        <ul class="features-list">
+                            <li>Devis illimités par IA</li>
+                            <li>Reconnaissance photo et vocale</li>
+                            <li>Base de prix temps réel</li>
+                            <li>Signature électronique</li>
+                            <li>Support humain 7j/7</li>
+                        </ul>
+                        <button class="cta-button" onclick="startPayment('solo')">
+                            Accéder à vie maintenant - 79€
+                        </button>
+                        <div class="guarantee">Paiement unique • Pas d'abonnement</div>
+                    </div>
+                    
+                    <div class="pricing-card featured">
+                        <h3>Équipe Pro</h3>
+                        <div class="price">199€ <span class="price-old">249€</span></div>
+                        <div class="price-subtitle">Parfait pour les équipes et entreprises</div>
+                        <ul class="features-list">
+                            <li>Tout du plan Artisan Solo, plus :</li>
+                            <li>Accès jusqu'à 5 utilisateurs</li>
+                            <li>Gestion centralisée des devis</li>
+                            <li>Rapports et statistiques</li>
+                            <li>Formation personnalisée incluse</li>
+                        </ul>
+                        <button class="cta-button" onclick="startPayment('team')">
+                            Accéder à vie maintenant - 199€
+                        </button>
+                        <div class="guarantee">Paiement unique • Garantie 48h</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features" id="fonctionnalites">
+        <div class="container">
+            <h2>Tout ce dont vous avez besoin pour créer des devis parfaits</h2>
+            <div class="features-grid">
+                <div class="feature-item">
+                    <div class="feature-icon">🎤</div>
+                    <h3>Dictée vocale intelligente</h3>
+                    <p>Dictez vos besoins sur le chantier, l'IA comprend et structure automatiquement votre devis.</p>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">📸</div>
+                    <h3>Reconnaissance photo</h3>
+                    <p>Prenez une photo du chantier, l'IA identifie les matériaux et calcule les quantités nécessaires.</p>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">💰</div>
+                    <h3>Prix temps réel</h3>
+                    <p>Base de données mise à jour quotidiennement avec les prix du marché pour des devis toujours justes.</p>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">✍️</div>
+                    <h3>Signature électronique</h3>
+                    <p>Envoyez et faites signer vos devis en un clic. Contrats validés instantanément.</p>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">👨‍🔧</div>
+                    <h3>Support par des vrais artisans</h3>
+                    <p>Notre équipe est composée d'anciens du bâtiment qui comprennent vos défis quotidiens.</p>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">📊</div>
+                    <h3>Rapports et suivi</h3>
+                    <p>Suivez vos devis, analysez votre rentabilité et optimisez votre activité.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Social Proof -->
+    <section class="social-proof">
+        <div class="container">
+            <h3>Approuvé par +2 500 artisans français</h3>
+            <div class="logos">
+                <div class="logo-item">Plomberie Martin</div>
+                <div class="logo-item">Électricité Dubois</div>
+                <div class="logo-item">Maçonnerie Leroy</div>
+                <div class="logo-item">Peinture Moreau</div>
+                <div class="logo-item">Menuiserie Petit</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ Section -->
+    <section class="faq" id="faq">
+        <div class="container">
+            <h2>Questions fréquentes</h2>
+            <div class="faq-container">
+                <div class="faq-item">
+                    <button class="faq-question" onclick="toggleFaq(this)">
+                        Est-ce vraiment un accès à vie ?
+                        <span>+</span>
+                    </button>
+                    <div class="faq-answer">
+                        Oui ! Contrairement à nos concurrents qui facturent des abonnements coûteux, nous offrons un accès à vie pour un simple paiement unique. Une fois acheté, vous pouvez utiliser DevisBoostAI indéfiniment.
+                    </div>
+                </div>
+                
+                <div class="faq-item">
+                    <button class="faq-question" onclick="toggleFaq(this)">
+                        À quelle fréquence mettez-vous à jour les prix ?
+                        <span>+</span>
+                    </button>
+                    <div class="faq-answer">
+                        Notre base de données de prix est mise à jour quotidiennement avec les tarifs du marché. Vous avez toujours accès aux prix les plus récents pour vos devis.
+                    </div>
+                </div>
+                
+                <div class="faq-item">
+                    <button class="faq-question" onclick="toggleFaq(this)">
+                        Puis-je passer au plan Équipe plus tard ?
+                        <span>+</span>
+                    </button>
+                    <div class="faq-answer">
+                        Oui ! Vous pouvez passer au plan Équipe à tout moment en payant simplement la différence. Contactez-nous si vous souhaitez faire cette mise à niveau.
+                    </div>
+                </div>
+                
+                <div class="faq-item">
+                    <button class="faq-question" onclick="toggleFaq(this)">
+                        Quelle est votre politique de remboursement ?
+                        <span>+</span>
+                    </button>
+                    <div class="faq-answer">
+                        Si vous n'êtes pas satisfait de votre achat, envoyez-nous un email dans les 48 heures et nous vous rembourserons intégralement, sans poser de questions.
+                    </div>
+                </div>
+                
+                <div class="faq-item">
+                    <button class="faq-question" onclick="toggleFaq(this)">
+                        Proposez-vous des formations ?
+                        <span>+</span>
+                    </button>
+                    <div class="faq-answer">
+                        Oui ! Le plan Équipe Pro inclut une formation personnalisée. Pour le plan Artisan Solo, nous proposons des tutoriels vidéo et un support par chat.
+                    </div>
+                </div>
+                
+                <div class="faq-item">
+                    <button class="faq-question" onclick="toggleFaq(this)">
+                        Comment puis-je obtenir de l'aide ?
+                        <span>+</span>
+                    </button>
+                    <div class="faq-answer">
+                        Notre équipe de support, composée d'anciens artisans, est disponible 7j/7 par email, chat ou téléphone. Nous répondons en moins de 2 heures.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2024 DevisBoostAI. Paiement unique • Accès à vie • Support humain garanti.</p>
+<p style="margin-top: 20px;">
+    <a href="mentions-legales.html" style="color: white; margin: 0 10px;">Mentions Légales</a>
+    <a href="politique-de-confidentialite.html" style="color: white; margin: 0 10px;">Politique de Confidentialité</a>
+    <a href="cgv.html" style="color: white; margin: 0 10px;">CGV</a>
+</p>
+        </div>
+    </footer>
+
+    <script>
+        function startPayment(plan) {
+            // Redirection vers la page de connexion
+            window.location.href = 'login.html';
+        }
+        
+        function selectPlan(plan) {
+            // Redirection vers la page de connexion pour tous les plans
+            window.location.href = 'login.html';
+        }
+        
+        function toggleFaq(element) {
+            const faqItem = element.parentElement;
+            const isActive = faqItem.classList.contains('active');
+            
+            // Fermer toutes les FAQ
+            document.querySelectorAll('.faq-item').forEach(item => {
+                item.classList.remove('active');
+                item.querySelector('.faq-question span').textContent = '+';
+            });
+            
+            // Ouvrir la FAQ cliquée si elle n'était pas active
+            if (!isActive) {
+                faqItem.classList.add('active');
+                element.querySelector('span').textContent = '-';
+            }
+        }
+    </script>
+</body>
+</html>
+

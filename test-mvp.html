@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test MVP Devy Boost AI - Plomberie</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f8fafc;
+        }
+        
+        .test-section {
+            background: white;
+            margin: 20px 0;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .test-title {
+            color: #2563eb;
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #2563eb;
+            padding-bottom: 5px;
+        }
+        
+        .test-input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #e2e8f0;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        
+        .test-button {
+            background: #2563eb;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        
+        .test-button:hover {
+            background: #1d4ed8;
+        }
+        
+        .test-result {
+            background: #f0fdf4;
+            border: 1px solid #22c55e;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 10px 0;
+            display: none;
+        }
+        
+        .test-result.show {
+            display: block;
+        }
+        
+        .error {
+            background: #fef2f2;
+            border: 1px solid #ef4444;
+            color: #dc2626;
+        }
+        
+        .success {
+            color: #16a34a;
+        }
+        
+        .price-breakdown {
+            background: #eff6ff;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        
+        .quote-preview {
+            border: 1px solid #e2e8f0;
+            padding: 20px;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <h1 style="text-align: center; color: #2563eb;">🧪 Test MVP Devy Boost AI - Plomberie</h1>
+    <p style="text-align: center; color: #6b7280;">Interface de test pour valider toutes les fonctionnalités</p>
+
+    <!-- Test 1: Analyse Vocale -->
+    <div class="test-section">
+        <div class="test-title">🎙️ Test 1: Analyse Dictée Vocale</div>
+        <textarea class="test-input" id="voiceInput" rows="3" placeholder="Exemple: Je dois remplacer le lavabo de la salle de bain et réparer une fuite sous l'évier de la cuisine"></textarea>
+        <button class="test-button" onclick="testVoiceAnalysis()">Analyser la Description</button>
+        <div class="test-result" id="voiceResult"></div>
+    </div>
+
+    <!-- Test 2: Base de Prix -->
+    <div class="test-section">
+        <div class="test-title">💰 Test 2: Base de Données Prix</div>
+        <input class="test-input" id="priceSearch" placeholder="Rechercher un élément (ex: lavabo, robinet, wc...)">
+        <button class="test-button" onclick="testPriceDatabase()">Rechercher Prix</button>
+        <div class="test-result" id="priceResult"></div>
+    </div>
+
+    <!-- Test 3: Génération Devis -->
+    <div class="test-section">
+        <div class="test-title">📄 Test 3: Génération Devis PDF</div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+            <input class="test-input" id="customerName" placeholder="Nom du client">
+            <input class="test-input" id="customerPhone" placeholder="Téléphone">
+        </div>
+        <textarea class="test-input" id="quoteDescription" rows="2" placeholder="Description des travaux à réaliser"></textarea>
+        <button class="test-button" onclick="testQuoteGeneration()">Générer Devis Complet</button>
+        <div class="test-result" id="quoteResult"></div>
+    </div>
+
+    <!-- Test 4: Scénarios Prédéfinis -->
+    <div class="test-section">
+        <div class="test-title">🎯 Test 4: Scénarios Prédéfinis</div>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px;">
+            <button class="test-button" onclick="testScenario('fuite')">🚨 Fuite Urgente</button>
+            <button class="test-button" onclick="testScenario('renovation')">🔧 Rénovation SdB</button>
+            <button class="test-button" onclick="testScenario('installation')">🆕 Installation WC</button>
+            <button class="test-button" onclick="testScenario('maintenance')">⚙️ Maintenance</button>
+        </div>
+        <div class="test-result" id="scenarioResult"></div>
+    </div>
+
+    <!-- Résultats Globaux -->
+    <div class="test-section">
+        <div class="test-title">📊 Résultats des Tests</div>
+        <div id="globalResults">
+            <p>Lancez les tests ci-dessus pour voir les résultats...</p>
+        </div>
+    </div>
+
+    <script src="ai-processor.js"></script>
+    <script src="plumbing-quote-generator.js"></script>
+    <script>
+        // Initialisation
+        const aiProcessor = new PlumberAIProcessor();
+        const quoteGenerator = new PlumbingQuoteGenerator();
+        let testResults = [];
+
+        // Test 1: Analyse Vocale
+        async function testVoiceAnalysis() {
+            const input = document.getElementById('voiceInput').value;
+            const resultDiv = document.getElementById('voiceResult');
+            
+            if (!input.trim()) {
+                showError(resultDiv, 'Veuillez saisir une description');
+                return;
+            }
+
+            try {
+                resultDiv.innerHTML = '<p>🔄 Analyse en cours...</p>';
+                resultDiv.classList.add('show');
+                
+                const result = await aiProcessor.analyzePlumbingWork(input);
+                
+                if (result.success) {
+                    const html = `
+                        <div class="success">✅ Analyse réussie (Confiance: ${Math.round(result.confidence * 100)}%)</div>
+                        <div class="price-breakdown">
+                            <strong>Éléments détectés:</strong>
+                            ${result.items.map(item => `
+                                <div>• ${item.name} - ${item.price}€/${item.unit} (Catégorie: ${item.category})</div>
+                            `).join('')}
+                        </div>
+                        <div><strong>Suggestions:</strong> ${result.suggestions.join(', ')}</div>
+                        <div><strong>Total estimé:</strong> ${result.totalEstimate ? result.totalEstimate.total_ttc.toFixed(2) + '€ TTC' : 'Non calculé'}</div>
+                    `;
+                    resultDiv.innerHTML = html;
+                    addTestResult('Analyse Vocale', true, `${result.items.length} éléments détectés`);
+                } else {
+                    showError(resultDiv, `Erreur: ${result.error}`);
+                    addTestResult('Analyse Vocale', false, result.error);
+                }
+            } catch (error) {
+                showError(resultDiv, `Erreur technique: ${error.message}`);
+                addTestResult('Analyse Vocale', false, error.message);
+            }
+        }
+
+        // Test 2: Base de Prix
+        function testPriceDatabase() {
+            const search = document.getElementById('priceSearch').value.toLowerCase();
+            const resultDiv = document.getElementById('priceResult');
+            
+            if (!search.trim()) {
+                showError(resultDiv, 'Veuillez saisir un terme de recherche');
+                return;
+            }
+
+            const database = aiProcessor.priceDatabase;
+            const matches = [];
+            
+            for (const [item, data] of Object.entries(database)) {
+                if (item.includes(search) || search.includes(item)) {
+                    matches.push({ item, ...data });
+                }
+            }
+
+            if (matches.length > 0) {
+                const html = `
+                    <div class="success">✅ ${matches.length} résultat(s) trouvé(s)</div>
+                    <div class="price-breakdown">
+                        ${matches.map(match => `
+                            <div style="margin: 10px 0; padding: 10px; border: 1px solid #e2e8f0; border-radius: 5px;">
+                                <strong>${match.item}</strong><br>
+                                Prix: ${match.price}€/${match.unit}<br>
+                                Catégorie: ${match.category}<br>
+                                ${match.installation_time ? `Temps pose: ${match.installation_time}h` : ''}
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+                resultDiv.innerHTML = html;
+                resultDiv.classList.add('show');
+                addTestResult('Base de Prix', true, `${matches.length} éléments trouvés`);
+            } else {
+                showError(resultDiv, 'Aucun élément trouvé');
+                addTestResult('Base de Prix', false, 'Aucun résultat');
+            }
+        }
+
+        // Test 3: Génération Devis
+        async function testQuoteGeneration() {
+            const customerName = document.getElementById('customerName').value;
+            const customerPhone = document.getElementById('customerPhone').value;
+            const description = document.getElementById('quoteDescription').value;
+            const resultDiv = document.getElementById('quoteResult');
+            
+            if (!description.trim()) {
+                showError(resultDiv, 'Veuillez saisir une description des travaux');
+                return;
+            }
+
+            try {
+                resultDiv.innerHTML = '<p>🔄 Génération du devis...</p>';
+                resultDiv.classList.add('show');
+                
+                // Analyse IA
+                const analysis = await aiProcessor.analyzePlumbingWork(description);
+                
+                // Génération devis
+                const customerInfo = {
+                    name: customerName || 'Client Test',
+                    phone: customerPhone || '01 23 45 67 89'
+                };
+                
+                const quote = await quoteGenerator.generatePlumbingQuote(analysis, customerInfo);
+                
+                const html = `
+                    <div class="success">✅ Devis généré avec succès</div>
+                    <div class="price-breakdown">
+                        <strong>Devis N°:</strong> ${quote.data.quote_number}<br>
+                        <strong>Client:</strong> ${quote.data.customer.name}<br>
+                        <strong>Éléments:</strong> ${quote.data.items.length}<br>
+                        <strong>Total HT:</strong> ${quote.data.totals.subtotal_ht.toFixed(2)}€<br>
+                        <strong>Total TTC:</strong> ${quote.data.totals.total_ttc.toFixed(2)}€
+                    </div>
+                    <div class="quote-preview">
+                        <strong>Aperçu HTML généré:</strong><br>
+                        <div style="max-height: 200px; overflow-y: auto; background: #f8fafc; padding: 10px; margin: 10px 0;">
+                            ${quote.html.substring(0, 500)}...
+                        </div>
+                        <button class="test-button" onclick="openQuotePreview()">Voir Devis Complet</button>
+                    </div>
+                `;
+                resultDiv.innerHTML = html;
+                
+                // Stocker pour prévisualisation
+                window.lastGeneratedQuote = quote.html;
+                
+                addTestResult('Génération Devis', true, `${quote.data.totals.total_ttc.toFixed(2)}€ TTC`);
+            } catch (error) {
+                showError(resultDiv, `Erreur: ${error.message}`);
+                addTestResult('Génération Devis', false, error.message);
+            }
+        }
+
+        // Test 4: Scénarios
+        async function testScenario(scenario) {
+            const scenarios = {
+                'fuite': 'Fuite urgente sous le lavabo de la salle de bain, eau qui coule en permanence',
+                'renovation': 'Rénovation complète salle de bain: remplacer lavabo, WC, douche et robinetterie',
+                'installation': 'Installation nouveau WC suspendu avec bâti-support dans les toilettes',
+                'maintenance': 'Entretien chauffe-eau et détartrage robinetterie cuisine'
+            };
+            
+            const description = scenarios[scenario];
+            const resultDiv = document.getElementById('scenarioResult');
+            
+            try {
+                resultDiv.innerHTML = `<p>🔄 Test du scénario "${scenario}"...</p>`;
+                resultDiv.classList.add('show');
+                
+                const analysis = await aiProcessor.analyzePlumbingWork(description);
+                const quote = await quoteGenerator.generatePlumbingQuote(analysis, { name: `Client ${scenario}` });
+                
+                const html = `
+                    <div class="success">✅ Scénario "${scenario}" traité avec succès</div>
+                    <div class="price-breakdown">
+                        <strong>Description:</strong> ${description}<br>
+                        <strong>Éléments détectés:</strong> ${analysis.items.length}<br>
+                        <strong>Confiance:</strong> ${Math.round(analysis.confidence * 100)}%<br>
+                        <strong>Total:</strong> ${quote.data.totals.total_ttc.toFixed(2)}€ TTC<br>
+                        <strong>Temps estimé:</strong> ${quote.data.totals.total_time}h
+                    </div>
+                `;
+                resultDiv.innerHTML = html;
+                
+                addTestResult(`Scénario ${scenario}`, true, `${quote.data.totals.total_ttc.toFixed(2)}€`);
+            } catch (error) {
+                showError(resultDiv, `Erreur scénario ${scenario}: ${error.message}`);
+                addTestResult(`Scénario ${scenario}`, false, error.message);
+            }
+        }
+
+        // Utilitaires
+        function showError(div, message) {
+            div.innerHTML = `<div class="error">❌ ${message}</div>`;
+            div.classList.add('show');
+        }
+
+        function addTestResult(testName, success, details) {
+            testResults.push({ testName, success, details, timestamp: new Date() });
+            updateGlobalResults();
+        }
+
+        function updateGlobalResults() {
+            const globalDiv = document.getElementById('globalResults');
+            const successCount = testResults.filter(r => r.success).length;
+            const totalCount = testResults.length;
+            
+            const html = `
+                <div style="margin-bottom: 15px;">
+                    <strong>Résumé:</strong> ${successCount}/${totalCount} tests réussis
+                    <div style="background: ${successCount === totalCount ? '#22c55e' : '#f59e0b'}; height: 10px; border-radius: 5px; margin: 5px 0;"></div>
+                </div>
+                ${testResults.map(result => `
+                    <div style="display: flex; justify-content: space-between; padding: 5px 0; border-bottom: 1px solid #e2e8f0;">
+                        <span>${result.success ? '✅' : '❌'} ${result.testName}</span>
+                        <span style="color: #6b7280; font-size: 12px;">${result.details}</span>
+                    </div>
+                `).join('')}
+            `;
+            globalDiv.innerHTML = html;
+        }
+
+        function openQuotePreview() {
+            if (window.lastGeneratedQuote) {
+                const newWindow = window.open('', '_blank');
+                newWindow.document.write(window.lastGeneratedQuote);
+                newWindow.document.close();
+            }
+        }
+
+        // Initialisation avec exemples
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('voiceInput').value = "Je dois remplacer le lavabo de la salle de bain et réparer une fuite sous l'évier";
+            document.getElementById('priceSearch').value = "lavabo";
+            document.getElementById('customerName').value = "M. Dupont";
+            document.getElementById('customerPhone').value = "01 23 45 67 89";
+            document.getElementById('quoteDescription').value = "Remplacement lavabo salle de bain avec robinetterie";
+        });
+    </script>
+</body>
+</html>
