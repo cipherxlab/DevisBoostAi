@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configuration Google Vision API - DevisBoostAI</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .config-container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            max-width: 600px;
+            width: 100%;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #333;
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 1.1rem;
+        }
+
+        .status {
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-weight: 500;
+        }
+
+        .status.inactive {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+
+        .status.active {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e1e5e9;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .form-group small {
+            display: block;
+            margin-top: 5px;
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+            width: 100%;
+            margin-bottom: 15px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+        }
+
+        .instructions {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+
+        .instructions h3 {
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        .instructions ol {
+            padding-left: 20px;
+        }
+
+        .instructions li {
+            margin-bottom: 8px;
+            color: #555;
+        }
+
+        .instructions a {
+            color: #667eea;
+            text-decoration: none;
+        }
+
+        .instructions a:hover {
+            text-decoration: underline;
+        }
+
+        .test-section {
+            margin-top: 30px;
+            padding-top: 30px;
+            border-top: 1px solid #e1e5e9;
+        }
+
+        .test-result {
+            margin-top: 15px;
+            padding: 15px;
+            border-radius: 10px;
+            font-family: monospace;
+            font-size: 0.9rem;
+        }
+
+        .test-result.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .test-result.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        @media (max-width: 768px) {
+            .config-container {
+                padding: 20px;
+            }
+            
+            .header h1 {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="config-container">
+        <div class="header">
+            <h1>🔧 Configuration Google Vision API</h1>
+            <p>Activez la reconnaissance photo réelle pour DevisBoostAI</p>
+        </div>
+
+        <div id="status" class="status inactive">
+            ⚠️ Google Vision API non configurée - Mode simulation actif
+        </div>
+
+        <form id="configForm">
+            <div class="form-group">
+                <label for="apiKey">Clé API Google Cloud Vision</label>
+                <input type="password" id="apiKey" placeholder="AIzaSyC...">
+                <small>Votre clé API Google Cloud avec Vision API activée</small>
+            </div>
+
+            <button type="submit" class="btn" id="saveBtn">
+                💾 Sauvegarder et Activer
+            </button>
+
+            <button type="button" class="btn btn-secondary" id="testBtn" disabled>
+                🧪 Tester la Configuration
+            </button>
+        </form>
+
+        <div class="test-section">
+            <h3>Test de Fonctionnement</h3>
+            <input type="file" id="testImage" accept="image/*" style="margin-bottom: 15px;">
+            <button type="button" class="btn btn-secondary" id="testImageBtn" disabled>
+                📸 Tester avec cette Image
+            </button>
+            <div id="testResult"></div>
+        </div>
+
+        <div class="instructions">
+            <h3>📋 Instructions de Configuration</h3>
+            <ol>
+                <li>Allez sur <a href="https://console.cloud.google.com/" target="_blank">Google Cloud Console</a></li>
+                <li>Créez un nouveau projet ou sélectionnez un projet existant</li>
+                <li>Activez l'API "Cloud Vision API" dans la bibliothèque d'APIs</li>
+                <li>Créez une clé API dans "APIs & Services" > "Credentials"</li>
+                <li>Copiez votre clé API et collez-la ci-dessus</li>
+                <li>Cliquez sur "Sauvegarder et Activer"</li>
+            </ol>
+            
+            <p style="margin-top: 15px;">
+                <strong>💰 Coût estimé :</strong> ~7€/mois pour 3000 analyses photo<br>
+                <strong>🎁 Bonus :</strong> 300$ de crédit gratuit pour nouveaux comptes Google Cloud
+            </p>
+        </div>
+    </div>
+
+    <script>
+        class VisionConfigManager {
+            constructor() {
+                this.initializeElements();
+                this.loadSavedConfig();
+                this.bindEvents();
+            }
+
+            initializeElements() {
+                this.statusEl = document.getElementById('status');
+                this.apiKeyInput = document.getElementById('apiKey');
+                this.saveBtn = document.getElementById('saveBtn');
+                this.testBtn = document.getElementById('testBtn');
+                this.testImageInput = document.getElementById('testImage');
+                this.testImageBtn = document.getElementById('testImageBtn');
+                this.testResultEl = document.getElementById('testResult');
+                this.configForm = document.getElementById('configForm');
+            }
+
+            loadSavedConfig() {
+                const savedApiKey = localStorage.getItem('googleVisionApiKey');
+                if (savedApiKey) {
+                    this.apiKeyInput.value = savedApiKey;
+                    this.updateStatus('active', '✅ Google Vision API configurée et active');
+                    this.testBtn.disabled = false;
+                    this.testImageBtn.disabled = false;
+                    
+                    // Configurer globalement
+                    if (window.visionConfig) {
+                        window.visionConfig.apiKey = savedApiKey;
+                    }
+                }
+            }
+
+            bindEvents() {
+                this.configForm.addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    this.saveConfiguration();
+                });
+
+                this.testBtn.addEventListener('click', () => {
+                    this.testConfiguration();
+                });
+
+                this.testImageBtn.addEventListener('click', () => {
+                    this.testWithImage();
+                });
+
+                this.testImageInput.addEventListener('change', () => {
+                    this.testImageBtn.disabled = !this.testImageInput.files[0];
+                });
+            }
+
+            updateStatus(type, message) {
+                this.statusEl.className = `status ${type}`;
+                this.statusEl.textContent = message;
+            }
+
+            async saveConfiguration() {
+                const apiKey = this.apiKeyInput.value.trim();
+                
+                if (!apiKey) {
+                    this.updateStatus('error', '❌ Veuillez saisir une clé API');
+                    return;
+                }
+
+                if (!apiKey.startsWith('AIza')) {
+                    this.updateStatus('error', '❌ Format de clé API invalide (doit commencer par AIza)');
+                    return;
+                }
+
+                try {
+                    this.saveBtn.disabled = true;
+                    this.saveBtn.textContent = '⏳ Validation...';
+
+                    // Tester la clé API
+                    const isValid = await this.validateApiKey(apiKey);
+                    
+                    if (isValid) {
+                        // Sauvegarder
+                        localStorage.setItem('googleVisionApiKey', apiKey);
+                        
+                        // Configurer globalement
+                        if (window.visionConfig) {
+                            window.visionConfig.apiKey = apiKey;
+                        }
+
+                        this.updateStatus('active', '✅ Configuration sauvegardée avec succès !');
+                        this.testBtn.disabled = false;
+                        this.testImageBtn.disabled = false;
+                        
+                        // Rediriger vers l'application après 2 secondes
+                        setTimeout(() => {
+                            window.location.href = 'app.html';
+                        }, 2000);
+                        
+                    } else {
+                        this.updateStatus('error', '❌ Clé API invalide ou Vision API non activée');
+                    }
+
+                } catch (error) {
+                    console.error('Erreur validation:', error);
+                    this.updateStatus('error', '❌ Erreur de validation : ' + error.message);
+                } finally {
+                    this.saveBtn.disabled = false;
+                    this.saveBtn.textContent = '💾 Sauvegarder et Activer';
+                }
+            }
+
+            async validateApiKey(apiKey) {
+                try {
+                    const testRequest = {
+                        requests: [{
+                            image: {
+                                content: '/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX/9k='
+                            },
+                            features: [{
+                                type: 'LABEL_DETECTION',
+                                maxResults: 1
+                            }]
+                        }]
+                    };
+
+                    const response = await fetch(`https://vision.googleapis.com/v1/images:annotate?key=${apiKey}`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(testRequest)
+                    });
+
+                    return response.ok;
+                } catch (error) {
+                    console.error('Erreur test API:', error);
+                    return false;
+                }
+            }
+
+            async testConfiguration() {
+                const apiKey = localStorage.getItem('googleVisionApiKey');
+                if (!apiKey) {
+                    this.showTestResult('error', 'Aucune clé API configurée');
+                    return;
+                }
+
+                try {
+                    this.testBtn.disabled = true;
+                    this.testBtn.textContent = '⏳ Test en cours...';
+
+                    const isValid = await this.validateApiKey(apiKey);
+                    
+                    if (isValid) {
+                        this.showTestResult('success', '✅ Test réussi ! Google Vision API fonctionne correctement.');
+                    } else {
+                        this.showTestResult('error', '❌ Test échoué. Vérifiez votre clé API et que Vision API est activée.');
+                    }
+
+                } catch (error) {
+                    this.showTestResult('error', '❌ Erreur de test : ' + error.message);
+                } finally {
+                    this.testBtn.disabled = false;
+                    this.testBtn.textContent = '🧪 Tester la Configuration';
+                }
+            }
+
+            async testWithImage() {
+                const file = this.testImageInput.files[0];
+                const apiKey = localStorage.getItem('googleVisionApiKey');
+                
+                if (!file || !apiKey) {
+                    this.showTestResult('error', 'Sélectionnez une image et configurez votre clé API');
+                    return;
+                }
+
+                try {
+                    this.testImageBtn.disabled = true;
+                    this.testImageBtn.textContent = '⏳ Analyse...';
+
+                    // Convertir l'image en base64
+                    const base64 = await this.fileToBase64(file);
+                    
+                    // Analyser avec Google Vision
+                    const result = await this.analyzeTestImage(base64, apiKey);
+                    
+                    if (result.success) {
+                        this.showTestResult('success', 
+                            `✅ Analyse réussie !\n\nÉléments détectés :\n${result.labels.map(l => `- ${l.description} (${Math.round(l.score * 100)}%)`).join('\n')}`
+                        );
+                    } else {
+                        this.showTestResult('error', '❌ Erreur d\'analyse : ' + result.error);
+                    }
+
+                } catch (error) {
+                    this.showTestResult('error', '❌ Erreur : ' + error.message);
+                } finally {
+                    this.testImageBtn.disabled = false;
+                    this.testImageBtn.textContent = '📸 Tester avec cette Image';
+                }
+            }
+
+            async analyzeTestImage(base64Image, apiKey) {
+                try {
+                    const request = {
+                        requests: [{
+                            image: { content: base64Image },
+                            features: [
+                                { type: 'LABEL_DETECTION', maxResults: 5 },
+                                { type: 'OBJECT_LOCALIZATION', maxResults: 5 }
+                            ]
+                        }]
+                    };
+
+                    const response = await fetch(`https://vision.googleapis.com/v1/images:annotate?key=${apiKey}`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(request)
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`API Error: ${response.status}`);
+                    }
+
+                    const data = await response.json();
+                    const result = data.responses[0];
+
+                    return {
+                        success: true,
+                        labels: result.labelAnnotations || [],
+                        objects: result.localizedObjectAnnotations || []
+                    };
+
+                } catch (error) {
+                    return {
+                        success: false,
+                        error: error.message
+                    };
+                }
+            }
+
+            fileToBase64(file) {
+                return new Promise((resolve, reject) => {
+                    const reader = new FileReader();
+                    reader.onload = () => resolve(reader.result.split(',')[1]);
+                    reader.onerror = reject;
+                    reader.readAsDataURL(file);
+                });
+            }
+
+            showTestResult(type, message) {
+                this.testResultEl.className = `test-result ${type}`;
+                this.testResultEl.textContent = message;
+                this.testResultEl.style.display = 'block';
+            }
+        }
+
+        // Initialiser au chargement de la page
+        document.addEventListener('DOMContentLoaded', () => {
+            new VisionConfigManager();
+        });
+    </script>
+</body>
+</html>

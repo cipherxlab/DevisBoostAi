@@ -262,10 +262,19 @@
         </div>
     </div>
 
+    <script src="google-vision-integration.js"></script>
+    <script src="ai-processor-with-vision.js"></script>
     <script>
         let currentMode = 'voice';
+        let aiProcessor = null;
         let isRecording = false;
         let hasInput = false;
+
+        // Initialiser le processeur IA avec Google Vision
+        document.addEventListener('DOMContentLoaded', function() {
+            aiProcessor = new AIProcessorWithVision();
+            console.log('✅ AI Processor initialisé');
+        });
 
         function switchMode(mode) {
             currentMode = mode;
@@ -315,25 +324,96 @@
             
             // Simulate transcription result
             preview.innerHTML = '<p style="color: #374151;"><strong>Transcription :</strong><br>"Je dois remplacer le lavabo de la salle de bain et réparer une fuite sous l\'évier de la cuisine."</p>';
-            
             hasInput = true;
             updateGenerateButton();
         }
 
-        function previewPhoto(input) {
+        async function handlePhotoUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
             const preview = document.getElementById('photoPreview');
             
-            if (input.files && input.files[0]) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
+            // Afficher l'image immédiatement
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                preview.innerHTML = `
+                    <img src="${e.target.result}" alt="Photo uploadée" style="max-width: 100%; height: auto; border-radius: 8px; margin-bottom: 15px;">
+                    <div style="color: #6b7280; text-align: center;">
+                        <div style="display: inline-block; width: 20px; height: 20px; border: 2px solid #3b82f6; border-top: 2px solid transparent; border-radius: 50%; animation: spin 1s linear infinite;"></div>
+                        <p style="margin-top: 10px;">🔍 Analyse en cours avec Google Vision AI...</p>
+                    </div>
+                `;
+            };
+            reader.readAsDataURL(file);
+
+            try {
+                // Analyser avec Google Vision API
+                const context = "Équipement plomberie à analyser pour devis";
+                const analysis = await aiProcessor.analyzePhoto(file, context);
+                
+                if (analysis.success) {
+                    // Afficher les résultats
+                    const confidenceColor = analysis.confidence > 0.8 ? '#10b981' : analysis.confidence > 0.6 ? '#f59e0b' : '#ef4444';
+                    const methodText = analysis.method === 'google_vision' ? '🤖 Google Vision AI' : '🎭 Mode Simulation';
+                    
                     preview.innerHTML = `
-                        <img src="${e.target.result}" style="max-width: 100%; max-height: 200px; border-radius: 8px;">
-                        <p style="color: #374151; margin-top: 10px;">Photo chargée avec succès</p>
+                        <img src="${reader.result}" alt="Photo uploadée" style="max-width: 100%; height: auto; border-radius: 8px; margin-bottom: 15px;">
+                        <div style="background: #f3f4f6; padding: 15px; border-radius: 8px;">
+                            <p style="color: #374151; margin-bottom: 10px;"><strong>📊 Analyse ${methodText}</strong></p>
+                            <p style="color: ${confidenceColor}; font-weight: 600; margin-bottom: 10px;">
+                                Confiance: ${Math.round(analysis.confidence * 100)}%
+                            </p>
+                            <div style="margin-bottom: 10px;">
+                                <strong>Éléments détectés:</strong>
+                                ${analysis.elements.map(el => `
+                                    <div style="margin: 5px 0; padding: 8px; background: white; border-radius: 4px;">
+                                        • ${el.description} - ${el.price}€
+                                    </div>
+                                `).join('')}
+                            </div>
+                            ${analysis.recommendations ? `
+                                <div style="font-size: 0.9em; color: #6b7280;">
+                                    <strong>Recommandations:</strong><br>
+                                    ${analysis.recommendations.join('<br>')}
+                                </div>
+                            ` : ''}
+                            ${analysis.message ? `
+                                <div style="margin-top: 10px; padding: 8px; background: #fef3c7; border-radius: 4px; font-size: 0.9em; color: #92400e;">
+                                    ${analysis.message}
+                                </div>
+                            ` : ''}
+                        </div>
                     `;
+                    
+                    // Stocker l'analyse pour la génération du devis
+                    window.currentAnalysis = analysis;
                     hasInput = true;
                     updateGenerateButton();
-                };
-                reader.readAsDataURL(input.files[0]);
+                    
+                } else {
+                    // Erreur d'analyse
+                    preview.innerHTML = `
+                        <img src="${reader.result}" alt="Photo uploadée" style="max-width: 100%; height: auto; border-radius: 8px; margin-bottom: 15px;">
+                        <div style="background: #fef2f2; padding: 15px; border-radius: 8px; border: 1px solid #fecaca;">
+                            <p style="color: #dc2626;"><strong>❌ Erreur d'analyse</strong></p>
+                            <p style="color: #7f1d1d; font-size: 0.9em;">${analysis.error || 'Impossible d\'analyser cette image'}</p>
+                            <p style="color: #6b7280; font-size: 0.9em; margin-top: 10px;">
+                                💡 Essayez avec une image plus claire ou configurez Google Vision API
+                            </p>
+                        </div>
+                    `;
+                }
+                
+            } catch (error) {
+                console.error('Erreur analyse photo:', error);
+                preview.innerHTML = `
+                    <img src="${reader.result}" alt="Photo uploadée" style="max-width: 100%; height: auto; border-radius: 8px; margin-bottom: 15px;">
+                    <div style="background: #fef2f2; padding: 15px; border-radius: 8px;">
+                        <p style="color: #dc2626;"><strong>❌ Erreur technique</strong></p>
+                        <p style="color: #7f1d1d; font-size: 0.9em;">Impossible d'analyser l'image pour le moment.</p>
+                    </div>
+                `;
             }
         }
 
